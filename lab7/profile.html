@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Особистий кабінет</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h2>Вітаємо, <span id="user-name"></span>!</h2>
+    <form id="updateProfileForm">
+        <label for="username">Нове ім'я користувача:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Новий пароль:</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="confirm-password">Підтвердження пароля:</label>
+        <input type="password" id="confirm-password" name="confirm-password" required>
+
+        <button type="submit">Оновити профіль</button>
+    </form>
+    <p class="error-msg"></p>
+    <a href="logout.php">Вийти</a>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
