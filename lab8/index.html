@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оформлення замовлення</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Оформлення замовлення</h1>
+    <form id="orderForm">
+        <label for="order_number">Номер замовлення:</label>
+        <input type="text" id="order_number" name="order_number" required><br><br>
+
+        <label for="weight">Вага (кг):</label>
+        <input type="number" step="0.01" id="weight" name="weight" required><br><br>
+
+        <label for="city">Місто:</label>
+        <select id="city" name="city" required>
+            <option value="">Оберіть місто</option>
+            <option value="Київ">Київ</option>
+            <option value="Львів">Львів</option>
+            <option value="Одеса">Одеса</option>
+            <!-- Можна підвантажувати список міст динамічно -->
+        </select><br><br>
+
+        <label for="delivery_option">Тип доставки:</label>
+        <select id="delivery_option" name="delivery_option" required>
+            <option value="">Оберіть варіант</option>
+            <option value="Відділення">Відділення</option>
+            <option value="Поштомат">Поштомат</option>
+        </select><br><br>
+
+        <label for="delivery_point">Пункт доставки:</label>
+        <select id="delivery_point" name="delivery_point" required>
+            <option value="">Оберіть пункт</option>
+        </select><br><br>
+
+        <button type="submit">Оформити замовлення</button>
+    </form>
+
+    <div id="responseMessage" style="margin-top: 20px; color: green;"></div>
+
+    <script>
+        $(document).ready(function () {
+            // Динамічне підвантаження пунктів доставки
+            $('#city, #delivery_option').on('change', function () {
+    const city = $('#city').val();
+    const deliveryOption = $('#delivery_option').val();
+
+    if (city && deliveryOption) {
+        $.ajax({
+            url: 'getDeliveryPoints.php',
+            type: 'POST',
+            data: { city, delivery_option: deliveryOption },
+            dataType: 'json',
+            success: function (response) {
+                const deliveryPointSelect = $('#delivery_point');
+                deliveryPointSelect.empty().append('<option value="">Оберіть пункт</option>');
+
+                if (response.success && response.data.length > 0) {
+                    response.data.forEach(point => {
+                        deliveryPointSelect.append(`<option value="${point}">${point}</option>`);
+                    });
+                } else {
+                    deliveryPointSelect.append('<option value="">Немає доступних пунктів</option>');
+                    alert(response.message || 'Немає доступних пунктів');
+                }
+            },
+            error: function () {
+                alert('Помилка завантаження пунктів доставки. Перевірте підключення.');
+            }
+        });
+    }
+});
+
+            // Відправка форми через AJAX
+            $('#orderForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = {
+                    order_number: $('#order_number').val(),
+                    weight: $('#weight').val(),
+                    city: $('#city').val(),
+                    delivery_option: $('#delivery_option').val(),
+                    delivery_point: $('#delivery_point').val()
+                };
+
+                $.ajax({
+                    url: 'submitOrder.php',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.message) {
+                            $('#responseMessage').text(response.message);
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        $('#responseMessage').text('Помилка при відправці даних: ' + textStatus);
+                        $('#responseMessage').css('color', 'red');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
